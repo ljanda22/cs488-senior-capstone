@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
 
 # Load the dataset
 data = pd.read_csv("/kaggle/input/creditcardfraud/creditcard.csv")
@@ -27,9 +27,14 @@ random_forest_classifier.fit(x_train, y_train)
 # Make predictions on the test set
 y_pred = random_forest_classifier.predict(x_test)
 
-# Evaluate the model
-confusion_mat = confusion_matrix(y_test, y_pred)
-accuracy = accuracy_score(y_test, y_pred)
+#Evaluate the model
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred)
+auc_roc = roc_auc_score(y_test, y_pred)
 
-print("Confusion Matrix:\n", confusion_mat)
-print("Accuracy:", accuracy)
+# print the evaluation metrics
+print('Precision score:', precision)
+print('Recall score:', recall)
+print('F1-score:', f1)
+print('AUC-ROC score:', auc_roc)
