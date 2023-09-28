@@ -1,33 +1,35 @@
-# import necessary libraries
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
+# Import necessary libraries
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.datasets import make_classification
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix, accuracy_score
 
-# generate synthetic dataset for credit card fraud detection
-X, y = make_classification(n_samples=1000, n_features=10, n_informative=5, n_redundant=0, n_classes=2, weights=[0.95, 0.05], random_state=42)
+# Load the dataset
+data = pd.read_csv("/kaggle/input/creditcardfraud/creditcard.csv")
 
-# split dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Standardize the 'Amount' feature
+data['normAmount'] = StandardScaler().fit_transform(data['Amount'].values.reshape(-1, 1))
+data = data.drop(['Time', 'Amount'], axis=1)
 
-# create Random Forest model with default parameters
-rf_model = RandomForestClassifier(random_state=42)
+# Split the dataset into features (x) and target (y)
+x = data.drop("Class", axis=1)
+y = data["Class"]
 
-# train the model on the training data
-rf_model.fit(X_train, y_train)
+# Split the dataset into training and testing sets
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
 
-# make predictions on the test data
-y_pred = rf_model.predict(X_test)
+# Initialize and train a Random Forest Classifier
+random_forest_classifier = RandomForestClassifier(random_state=0)
+random_forest_classifier.fit(x_train, y_train)
 
-# calculate evaluation metrics
-precision = precision_score(y_test, y_pred)
-recall = recall_score(y_test, y_pred)
-f1 = f1_score(y_test, y_pred)
-auc_roc = roc_auc_score(y_test, y_pred)
+# Make predictions on the test set
+y_pred = random_forest_classifier.predict(x_test)
 
-# print the evaluation metrics
-print('Precision score:', precision)
-print('Recall score:', recall)
-print('F1-score:', f1)
-print('AUC-ROC score:', auc_roc)
+# Evaluate the model
+confusion_mat = confusion_matrix(y_test, y_pred)
+accuracy = accuracy_score(y_test, y_pred)
 
+print("Confusion Matrix:\n", confusion_mat)
+print("Accuracy:", accuracy)
